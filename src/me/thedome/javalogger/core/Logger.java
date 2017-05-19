@@ -146,7 +146,7 @@ public class Logger {
 	 * @param message The message to print
 	 * @param objects Objects to insert into the string
 	 */
-	protected void INFO(String message, Object... objects) {
+	public void INFO(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
 		print(message);
 	}
@@ -176,7 +176,7 @@ public class Logger {
 	 * @param message The message to print
 	 * @param objects Objects to insert into the string
 	 */
-	protected void TRACE(String message, Object... objects) {
+	public void TRACE(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
 		debug(LogLevel.TRACE, message);
 	}
@@ -200,7 +200,7 @@ public class Logger {
 	 * @param message The message to print
 	 * @param objects Objects to insert into the string
 	 */
-	protected void ERROR(String message, Object... objects) {
+	public void ERROR(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
 		debug(LogLevel.ERROR, message);
 	}
