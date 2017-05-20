@@ -50,7 +50,7 @@ public class Logger {
 	 * @param message The message to prepare
 	 * @param objects The Objects to insert
 	 */
-	public static String prepare(String message, Object... objects) {
+	public static String prepare(String message, Object... objects) throws IllegalArgumentException{
 		if (objects.length == 0) return message;
 
 		// The formatted string
@@ -63,7 +63,12 @@ public class Logger {
 			char c = message.charAt(i);
 
 			if (c == '{' && message.charAt(++i) == '}') {
-				formatted += convertToString(objects[objectNo++]);
+				try {
+					formatted += convertToString(objects[objectNo++]);
+				}catch (ArrayIndexOutOfBoundsException e){
+					Logger.getInstance().ERROR("Logging of string:'{}' couln't be completed. The number of passed objects does not match the number of insertion points", message);
+					throw new IllegalArgumentException("The number of passed objects does not match the number of insertion points");
+				}
 				continue;
 			}
 
