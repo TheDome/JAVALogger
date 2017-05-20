@@ -28,12 +28,11 @@ import java.io.Serializable;
  * <br/>
  * A basic object, that contains some essential functions. This is, that you must not give these functions any class.
  */
-@SuppressWarnings("SameParameterValue")
 public abstract class LoggableObject implements Serializable {
 
 
 	private static final long serialVersionUID = -4452844348804951615L;
-	private static Logger log = Logger.getInstance();
+	private static final Logger log = Logger.getInstance();
 
 	/**
 	 * Log a String at the specifies LogLevel.<br></br>
@@ -57,7 +56,7 @@ public abstract class LoggableObject implements Serializable {
 	 */
 	protected void INFO(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
-		log.print(message);
+		log.INFO(message);
 	}
 
 	/**
@@ -72,9 +71,9 @@ public abstract class LoggableObject implements Serializable {
 		message = Logger.prepare(message, objects);
 
 		if (tmp) {
-			log.debug(LogLevel.TMP_WARN, message);
+			log.WARN(message, true);
 		} else {
-			log.debug(LogLevel.WARN, message);
+			log.WARN(message, false);
 		}
 	}
 
@@ -87,7 +86,7 @@ public abstract class LoggableObject implements Serializable {
 	 */
 	protected void TRACE(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
-		log.debug(LogLevel.TRACE, message);
+		log.TRACE(message);
 	}
 
 	/**
@@ -99,7 +98,7 @@ public abstract class LoggableObject implements Serializable {
 	 */
 	public void DEBUG(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
-		log.debug(LogLevel.DEBUG, message);
+		log.DEBUG(message);
 	}
 
 	/**
@@ -111,7 +110,7 @@ public abstract class LoggableObject implements Serializable {
 	 */
 	protected void ERROR(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
-		log.debug(LogLevel.ERROR, message);
+		log.ERROR(message);
 	}
 
 }

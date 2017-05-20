@@ -29,7 +29,7 @@ public enum LogLevel {
 	 */
 	ERROR(-2), WARN(-1), TMP_WARN(-1), INFO(0), DEBUG(1), TRACE(1);
 
-	public int level;
+	public final int level;
 
 	LogLevel(int level){
 		this.level = level;
