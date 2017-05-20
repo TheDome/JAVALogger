@@ -17,9 +17,9 @@
 
 package me.thedome.javalogger.core;
 
-import me.thedome.javalogger.LogLevel;
-
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 
 /**
  * me.thedome.logging.core
@@ -28,7 +28,9 @@ import java.util.Arrays;
 public class Logger {
 
 	//Logger instance
-	private static Logger instance = new Logger();
+	private static final Logger instance = new Logger();
+	private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	private boolean displayTimeString = false;
 
 	// The current level of log
 	private LogLevel logLevel = LogLevel.INFO;
@@ -74,7 +76,8 @@ public class Logger {
 	}
 
 	/**
-	 * Convert an Object into a string. This als includes tests of instances. Else, the <code>toString</code> method will be called.
+	 * Convert an Object into a string. This als includes tests of instances. Else, the <code>toString</code> method
+	 * will be called.
 	 *
 	 * @param o The Object to convert
 	 *
@@ -99,13 +102,60 @@ public class Logger {
 	}
 
 	/**
-	 * Set the level of logging
+	 * Set, if the prefix for the time should be visible. The prefix is usually only visible in DEBUG mode. but if you
+	 * want to yiew the current time even in the INFO mode, then you can enable it with this.
+	 *
+	 * @param display A boolean, that represents, whether the prefix of time should be displayed.
+	 */
+	public void displayTimeString(boolean display) {
+		displayTimeString = display;
+	}
+
+	/**
+	 * Set the time string which prefixes every message. This String should be a Date format. Available options
+	 * are:<br></br> G 	Era designator (before christ, after christ) <br></br> y 	Year (e.g. 12 or 2012). Use either yy
+	 * or yyyy.<br></br> M 	Month in year. Number of M's determine length of format (e.g. MM, MMM or MMMMM)<br></br> d
+	 * 	Day in month. Number of d's determine length of format (e.g. d or dd)<br></br> h 	Hour of day, 1-12 (AM / PM)
+	 * (normally hh)<br></br> H 	Hour of day, 0-23 (normally HH)<br></br> m 	Minute in hour, 0-59 (normally mm)<br></br>
+	 * s 	Second in minute, 0-59 (normally ss)<br></br> S 	Millisecond in second, 0-999 (normally SSS)<br></br> E 	Day
+	 * in week (e.g Monday, Tuesday etc.)<br></br> D 	Day in year (1-366)<br></br> F 	Day of week in month (e.g. 1st
+	 * Thursday of December)<br></br> w 	Week in year (1-53)<br></br> W 	Week in month (0-5)<br></br> a 	AM / PM
+	 * marker<br></br> k 	Hour in day (1-24, unlike HH's 0-23)<br></br> K 	Hour in day, AM / PM (0-11)<br></br> z 	Time
+	 * Zone<br></br> ' 	Escape for text delimiter<br></br> ' 	Single quote<br></br> <br></br><br></br>
+	 * <p>
+	 * The source of this table is: http://tutorials.jenkov.com/java-internationalization/simpledateformat.html
+	 *
+	 * @param timeString A string, that represents the format for the logs
+	 *
+	 * @throws IllegalArgumentException Throws an IllegalArgumentException, when the string isn't conform with the
+	 *                                  dateformat, that should be used.
+	 */
+	public void setTimeString(String timeString) throws IllegalArgumentException {
+		format = new SimpleDateFormat(timeString);
+	}
+
+	/**
+	 * Defines, whether the Loggin utility should show the Time before each log, or not. The Time will be in the time
+	 * format, that is set. The default value is 'yyyy-MM-dd HH:mm:ss.SSS'. <br></br> An example would be:
+	 * <code>[2017-02-20 12:12:12.567] [ DEBUG ] Init</code>
+	 *
+	 * @param show Whether the time will be shown before each log.
+	 */
+	public void showTime(boolean show) {
+		this.displayTimeString = show;
+	}
+
+	/**
+	 * Set the level of logging. <br></br>
+	 * <p>
+	 * Beware! If you change the level, the option of the time prefix will also be changed!
 	 *
 	 * @param level the Level of logging to be applied to the console
 	 */
 	public void setLevel(LogLevel level) {
 		if (level.level >= 0) {
 			logLevel = level;
+			displayTimeString = level.level > LogLevel.DEBUG.level;
 		}
 	}
 
@@ -117,7 +167,12 @@ public class Logger {
 	 */
 	public void debug(LogLevel level, String message) {
 		if (logLevel.level >= level.level) {
-			print("[ " + level + " ] " + message);
+			if (displayTimeString) {
+				// Prefix the time
+				print("[" + format.format(Calendar.getInstance().getTime()) + "] [ " + level + " ] \t" + message);
+			} else {
+				print("[ " + level + " ] " + message);
+			}
 		}
 	}
 
@@ -140,20 +195,25 @@ public class Logger {
 	}
 
 	/**
-	 * Log a String at <link>LogLevel.INFO</link><br></br>
-	 * The message can be passed with placeholders. Theses placeholders will be replaces by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
+	 * Log a String at <link>LogLevel.INFO</link><br></br> The message can be passed with placeholders. Theses
+	 * placeholders will be replaces by the objects passed to the warning message. The code for a placeholder is:
+	 * <code>{}</code>
 	 *
 	 * @param message The message to print
 	 * @param objects Objects to insert into the string
 	 */
 	public void INFO(String message, Object... objects) {
 		message = Logger.prepare(message, objects);
-		print(message);
+		if (displayTimeString) {
+			debug(LogLevel.INFO, message);
+		} else {
+			print(message);
+		}
 	}
 
 	/**
-	 * Warn the user about an error. <br></br>
-	 * The message can be passed with placeholders. Theses placeholders will be replaces by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
+	 * Warn the user about an error. <br></br> The message can be passed with placeholders. Theses placeholders will be
+	 * replaces by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
 	 *
 	 * @param message The message to print
 	 * @param tmp     Is the warning temporary or not? eg. no internet connection is only a temporaray issue
@@ -170,8 +230,9 @@ public class Logger {
 	}
 
 	/**
-	 * Log a String at <link>LogLevel.TRACE</link> - Use this for trace logs. Theses logs are for debuggers at the end of an critical error.<br></br>
-	 * The message can be passed with placeholders. Theses placeholders will be replaces by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
+	 * Log a String at <link>LogLevel.TRACE</link> - Use this for trace logs. Theses logs are for debuggers at the end
+	 * of an critical error.<br></br> The message can be passed with placeholders. Theses placeholders will be replaces
+	 * by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
 	 *
 	 * @param message The message to print
 	 * @param objects Objects to insert into the string
@@ -182,8 +243,9 @@ public class Logger {
 	}
 
 	/**
-	 * Log a String at <link>LogLevel.DEBUG</link> - this is turned off by default. Log there all messages to understand the application, but don't spam<br></br>
-	 * The message can be passed with placeholders. Theses placeholders will be replaces by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
+	 * Log a String at <link>LogLevel.DEBUG</link> - this is turned off by default. Log there all messages to understand
+	 * the application, but don't spam<br></br> The message can be passed with placeholders. Theses placeholders will be
+	 * replaces by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
 	 *
 	 * @param message The message to print
 	 * @param objects Objects to insert into the string
@@ -194,8 +256,9 @@ public class Logger {
 	}
 
 	/**
-	 * Log a String at <link>LogLevel.ERROR</link> - the not mutable channel. Use this for critical system errors!<br></br>
-	 * The message can be passed with placeholders. Theses placeholders will be replaces by the objects passed to the warning message. The code for a placeholder is: <code>{}</code>
+	 * Log a String at <link>LogLevel.ERROR</link> - the not mutable channel. Use this for critical system
+	 * errors!<br></br> The message can be passed with placeholders. Theses placeholders will be replaces by the objects
+	 * passed to the warning message. The code for a placeholder is: <code>{}</code>
 	 *
 	 * @param message The message to print
 	 * @param objects Objects to insert into the string
